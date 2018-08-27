@@ -1,5 +1,7 @@
 # OpenGLTerrainRendering
 
+![alt text](https://i.imgur.com/aReVEtm.jpg)
+
 | Key            | Command            |
 | -------------- | ------------------ |
 | w              | Toggle wireframe   |
