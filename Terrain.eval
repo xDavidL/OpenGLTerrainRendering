@@ -1,0 +1,23 @@
+#version 400
+
+layout(quads, equal_spacing, ccw) in;
+uniform float waterLevel;
+uniform sampler2D heightMap;
+vec4 posn;
+
+void main()
+{
+    float u = gl_TessCoord.x;
+    float v = gl_TessCoord.y;
+
+    posn = (1-u)* (1-v) * gl_in[0].gl_Position
+         + u * (1-v) * gl_in[1].gl_Position
+         + u * v * gl_in[2].gl_Position
+         + (1-u) * v * gl_in[3].gl_Position;
+
+    float s = (posn.x + 45) / 90.0;
+    float t = posn.z / -100.0;
+
+    posn = vec4(posn.x, texture(heightMap, vec2(s, t)).x * 10, posn.z, posn.w);
+    gl_Position = posn;
+}

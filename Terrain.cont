@@ -1,0 +1,40 @@
+#version 400
+
+layout(vertices = 4) out;
+uniform mat4 mvMatrix;
+uniform float waterLevel;
+
+float lod(float dist) {
+    return max(4, -0.2 * dist + 50);
+//    return (dist + 500.0) * 46.0 / 500.0 + 4;
+}
+
+float sumEyeComponents(vec4 vec) {
+    vec4 posEye = mvMatrix * vec;
+    return abs(posEye.x) + abs(posEye.y) + abs(posEye.z);
+}
+
+void main()
+{
+    gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+
+    float avgDist = 0;
+    for (int i = 0; i < 4; i++) {
+        vec4 posCam = mvMatrix * gl_in[i].gl_Position;
+        avgDist += abs(posCam.x);
+        avgDist += abs(posCam.y);
+        avgDist += abs(posCam.z);
+    }
+    avgDist /= 4;
+    float avgLod = lod(avgDist);
+    gl_TessLevelOuter[0] = lod(sumEyeComponents(gl_in[0].gl_Position + gl_in[3].gl_Position) / 2.0);
+    gl_TessLevelOuter[1] = lod(sumEyeComponents(gl_in[1].gl_Position + gl_in[0].gl_Position) / 2.0);
+    gl_TessLevelOuter[2] = lod(sumEyeComponents(gl_in[2].gl_Position + gl_in[1].gl_Position) / 2.0);
+    gl_TessLevelOuter[3] = lod(sumEyeComponents(gl_in[3].gl_Position + gl_in[2].gl_Position) / 2.0);
+//    gl_TessLevelOuter[0] = avgLod;
+//    gl_TessLevelOuter[1] = avgLod;
+//    gl_TessLevelOuter[2] = avgLod;
+//    gl_TessLevelOuter[3] = avgLod;
+    gl_TessLevelInner[0] = avgLod;
+    gl_TessLevelInner[1] = avgLod;
+}
